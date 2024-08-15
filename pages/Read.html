@@ -37,7 +37,14 @@
         </nav>
         <!-- NavBar -->
 
+        <!-- Accordian Generation -->
+        <!-- Accordian Generation -->
 
+        <!-- Testing -->
+        <h1>Read a Text File</h1>
+        <input type="file" id="fileInput">
+        <pre id="fileContent"></pre>
+        <!-- Testing -->
         <!-- Including JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
         <!-- JS for the web page -->
@@ -48,6 +55,17 @@
                 var element = document.body;
                 element.dataset.bsTheme = element.dataset.bsTheme=="light"?"dark":"light"
             }
+
+            document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0]; // Get the selected file
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('fileContent').textContent = e.target.result;
+                };
+                reader.readAsText(file); // Read the file as text
+            }
+        });
         </script>
     </body>
 </html>
