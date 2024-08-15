@@ -37,9 +37,30 @@
         </nav>
         <!-- NavBar -->
 
+        <!-- Text Area for Input -->
+        <div class="container mt-5">
+            <h1 class="text-center">Text to File Downloader</h1>
+            <form id="textForm">
+                <div class="form-group">
+                    <label for="textArea1">Text Area 1</label>
+                    <textarea class="form-control" id="textArea1" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="textArea2">Text Area 2</label>
+                    <textarea class="form-control" id="textArea2" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="textArea3">Text Area 3</label>
+                    <textarea class="form-control" id="textArea3" rows="3"></textarea>
+                </div>
+                <button type="button" class="btn btn-primary" id="downloadBtn">Download as .txt</button>
+            </form>
+        </div>    
+        <!-- Text Area for Input -->
 
         <!-- Including JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+        <script src="CreateScript.js"></script>
         <!-- JS for the web page -->
         <script>
             function Toggling() {
