@@ -18,9 +18,10 @@ document.getElementById('fileInput').addEventListener('change', function (event)
             contentElement.textContent = '';  // Clear previous content
 
             // Loop through each line and print it
-            let accordionIndex = 0;
+            let Index = 0;
             let ContentHeader = "";
             var ContentMap = {};
+            var ContentSubHeader = {};
             for (let i = 0; i < lines.length; i++){
                 if(lines[i].includes("###")){
                     ContentHeader = lines[i].replace("### ", "");
@@ -35,17 +36,20 @@ document.getElementById('fileInput').addEventListener('change', function (event)
             }
             for(i in ContentMap){
                 contentElement.innerHTML += `
-                <div class="col">
-                    <div class="card width: 18rem;">
-                        <div class="card-header">
+                <div class="col mb-3">
+                    <div class="card">
+                        <button class="btn btn-outline-info" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample${Index}" aria-expanded="false" aria-controls="collapseExample${Index}">
                             ${i}
-                        </div>
-                        <div class="card-body">
-                            <p>${ContentMap[i]}<p>
+                        </button>
+                        <div class="collapse" id="collapseExample${Index}">
+                            <div class="card card-body">
+                                ${ContentMap[i]}
+                            </div>
                         </div>
                     </div>
                 </div>
                 `;
+                Index += 1;
             }
         };
         reader.readAsText(file);
