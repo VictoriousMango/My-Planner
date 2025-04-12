@@ -152,6 +152,13 @@
             letter-spacing: 2px;
         }
 
+        h1:hover {
+            color: #90e0ef;
+            text-shadow: 0 0 20px rgba(144, 224, 239, 0.7);
+
+            transition: all 0.3s ease;
+        }
+
         .upload-container {
             margin-bottom: 20px;
         }
@@ -181,7 +188,10 @@
 <body>
     <div class="container">
         <div class="sidebar">
-            <h1>Sections</h1>
+            <div class="tabs" style="display: flex; flex-direction: row; justify-content: space-around;">
+                <a href="./" style="text-decoration: none;"><h1 style="opacity: 50%;">Menu</h1></a>
+                <h1>Update</h1>
+            </div>     
             <div id="sectionList"></div>
             <div class="form-group">
                 <input type="text" id="newSectionKey" class="input-field" placeholder="Section Key (e.g., planner)">
