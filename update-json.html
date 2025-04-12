@@ -16,12 +16,19 @@
             background: linear-gradient(135deg, #0d1b2a, #1b263b);
             color: #e0e1dd;
             line-height: 1.6;
-            padding: 20px;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            flex: 1;
             background: rgba(27, 38, 59, 0.9);
             border-radius: 15px;
             padding: 20px;
@@ -29,64 +36,70 @@
             border: 1px solid rgba(0, 255, 255, 0.3);
         }
 
-        h1 {
-            color: #00ffcc;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
-            letter-spacing: 2px;
+        .main-content {
+            flex: 2;
+            background: rgba(27, 38, 59, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            position: relative;
         }
 
-        .upload-container {
-            margin-bottom: 20px;
-        }
-
-        #fileInput {
-            display: none;
-        }
-
-        .upload-btn, .add-btn, .save-btn, .preview-btn {
-            padding: 10px 20px;
-            background: linear-gradient(45deg, #00ffcc, #00b4d8);
-            color: #0d1b2a;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-
-        .upload-btn:hover, .add-btn:hover, .save-btn:hover, .preview-btn:hover {
-            box-shadow: 0 0 15px rgba(0, 255, 204, 0.7);
-            transform: scale(1.05);
-        }
-
-        .section-list, .item-list {
-            margin: 20px 0;
-        }
-
-        .section-item, .item {
-            background: rgba(65, 90, 119, 0.2);
+        .menu-item {
+            padding: 12px;
+            margin: 8px 0;
+            background: linear-gradient(90deg, #415a77, #778da9);
             border-radius: 8px;
-            padding: 15px;
-            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
             border: 1px solid rgba(0, 255, 255, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-item:hover {
+            background: linear-gradient(90deg, #00b4d8, #90e0ef);
+            box-shadow: 0 0 15px rgba(0, 180, 216, 0.5);
+            transform: translateX(5px);
+        }
+
+        .menu-item.active {
+            background: linear-gradient(90deg, #00ffcc, #00b4d8);
+            color: #0d1b2a;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.7);
+        }
+
+        .delete-section-btn {
+            color: #ff4444;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .delete-section-btn:hover {
+            text-shadow: 0 0 10px rgba(255, 68, 68, 0.7);
+        }
+
+        .item {
+            margin: 12px 0;
+            padding: 8px;
+            background: rgba(65, 90, 119, 0.2);
+            border-radius: 5px;
             transition: all 0.3s ease;
         }
 
-        .section-item:hover, .item:hover {
+        .item:hover {
             background: rgba(65, 90, 119, 0.4);
-        }
-
-        .section-item h3 {
-            color: #90e0ef;
-            margin-bottom: 10px;
+            transform: translateY(-2px);
         }
 
         .input-field {
             width: calc(100% - 20px);
-            padding: 8px;
+            padding: 10px;
             margin: 5px 0;
             border: 1px solid #00ffcc;
             border-radius: 5px;
@@ -97,6 +110,24 @@
 
         .input-field::placeholder {
             color: #778da9;
+        }
+
+        .add-btn, .save-btn, .upload-btn {
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #00ffcc, #00b4d8);
+            color: #0d1b2a;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .add-btn:hover, .save-btn:hover, .upload-btn:hover {
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.7);
+            transform: scale(1.05);
         }
 
         .delete-btn {
@@ -114,13 +145,33 @@
             transform: scale(1.05);
         }
 
+        h1 {
+            color: #00ffcc;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .upload-container {
+            margin-bottom: 20px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
         .form-group {
-            margin: 10px 0;
+            margin: 20px 0;
+        }
+
+        .no-section {
+            color: #778da9;
+            font-style: italic;
         }
 
         @media (max-width: 768px) {
             .container {
-                padding: 10px;
+                flex-direction: column;
             }
         }
 
@@ -129,29 +180,34 @@
 </head>
 <body>
     <div class="container">
-        <h1>JSON Dashboard Editor</h1>
-        <div class="upload-container">
-            <p>Upload your dashboard configuration JSON file:</p>
-            <input type="file" id="fileInput" accept=".json">
-            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Upload JSON</button>
+        <div class="sidebar">
+            <h1>Sections</h1>
+            <div id="sectionList"></div>
+            <div class="form-group">
+                <input type="text" id="newSectionKey" class="input-field" placeholder="Section Key (e.g., planner)">
+                <input type="text" id="newSectionName" class="input-field" placeholder="Section Name (e.g., Daily Planner)">
+                <button class="add-btn" onclick="addSection()">Add Section</button>
+            </div>
         </div>
-        <div class="section-list" id="sectionList"></div>
-        <div class="form-group">
-            <h3>Add New Section</h3>
-            <input type="text" id="newSectionKey" class="input-field" placeholder="Section Key (e.g., planner)">
-            <input type="text" id="newSectionName" class="input-field" placeholder="Section Name (e.g., Daily Planner)">
-            <button class="add-btn" onclick="addSection()">Add Section</button>
-        </div>
-        <div class="form-group">
+        <div class="main-content">
+            <h1>Item Editor</h1>
+            <div class="upload-container">
+                <p>Upload your dashboard configuration JSON file:</p>
+                <input type="file" id="fileInput" accept=".json">
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Upload JSON</button>
+            </div>
+            <div id="itemEditor" class="form-group"></div>
             <button class="save-btn" onclick="downloadJson()">Download JSON</button>
-            <button class="preview-btn" onclick="previewDashboard()">Preview Dashboard</button>
         </div>
     </div>
 
     <script>
         let dashboardData = { sections: {} };
+        let activeSection = null;
+
         const fileInput = document.getElementById('fileInput');
         const sectionList = document.getElementById('sectionList');
+        const itemEditor = document.getElementById('itemEditor');
 
         // Load JSON file
         fileInput.addEventListener('change', function(e) {
@@ -162,6 +218,10 @@
                     try {
                         dashboardData = JSON.parse(event.target.result);
                         renderSections();
+                        if (Object.keys(dashboardData.sections).length > 0) {
+                            activeSection = Object.keys(dashboardData.sections)[0];
+                            renderItems(activeSection);
+                        }
                     } catch (error) {
                         alert('Invalid JSON file');
                     }
@@ -170,46 +230,64 @@
             }
         });
 
-        // Render sections and items
+        // Render sections in sidebar
         function renderSections() {
             sectionList.innerHTML = '';
             Object.keys(dashboardData.sections).forEach(key => {
                 const section = dashboardData.sections[key];
-                const sectionDiv = document.createElement('div');
-                sectionDiv.className = 'section-item';
-                sectionDiv.innerHTML = `
-                    <h3>${section.name} (${key})</h3>
-                    <input type="text" class="input-field section-name" value="${section.name}" placeholder="Section Name" oninput="updateSectionName('${key}', this.value)">
-                    <button class="delete-btn" onclick="deleteSection('${key}')">Delete Section</button>
-                    <div class="item-list" id="items-${key}"></div>
-                    <div class="form-group">
-                        <input type="text" class="input-field item-name-${key}" placeholder="Item Name">
-                        <input type="text" class="input-field item-url-${key}" placeholder="Item URL (optional)">
-                        <input type="text" class="input-field item-desc-${key}" placeholder="Item Description (optional)">
-                        <button class="add-btn" onclick="addItem('${key}')">Add Item</button>
-                    </div>
+                const menuItem = document.createElement('div');
+                menuItem.className = `menu-item ${activeSection === key ? 'active' : ''}`;
+                menuItem.innerHTML = `
+                    ${section.name}
+                    <span class="delete-section-btn" onclick="deleteSection('${key}')">×</span>
                 `;
-                sectionList.appendChild(sectionDiv);
-                renderItems(key);
+                menuItem.addEventListener('click', (e) => {
+                    if (e.target.className !== 'delete-section-btn') {
+                        activeSection = key;
+                        renderSections();
+                        renderItems(key);
+                    }
+                });
+                sectionList.appendChild(menuItem);
             });
         }
 
-        // Render items for a section
+        // Render items for the active section
         function renderItems(sectionKey) {
-            const itemList = document.getElementById(`items-${sectionKey}`);
-            itemList.innerHTML = '';
-            const items = dashboardData.sections[sectionKey].items || [];
+            itemEditor.innerHTML = '';
+            if (!sectionKey || !dashboardData.sections[sectionKey]) {
+                itemEditor.innerHTML = '<p class="no-section">No section selected</p>';
+                return;
+            }
+
+            const section = dashboardData.sections[sectionKey];
+            itemEditor.innerHTML = `<h2>Items for ${section.name}</h2>`;
+
+            // List existing items
+            const items = section.items || [];
             items.forEach((item, index) => {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'item';
                 itemDiv.innerHTML = `
                     <input type="text" class="input-field" value="${item.name}" placeholder="Item Name" oninput="updateItem('${sectionKey}', ${index}, 'name', this.value)">
-                    <input type="text" class="input-field" value="${item.url || ''}" placeholder="Item URL" oninput="updateItem('${sectionKey}', ${index}, 'url', this.value)">
-                    <input type="text" class="input-field" value="${item.description || ''}" placeholder="Item Description" oninput="updateItem('${sectionKey}', ${index}, 'description', this.value)">
+                    <input type="text" class="input-field" value="${item.url || ''}" placeholder="Item URL (optional)" oninput="updateItem('${sectionKey}', ${index}, 'url', this.value)">
+                    <input type="text" class="input-field" value="${item.description || ''}" placeholder="Item Description (optional)" oninput="updateItem('${sectionKey}', ${index}, 'description', this.value)">
                     <button class="delete-btn" onclick="deleteItem('${sectionKey}', ${index})">Delete Item</button>
                 `;
-                itemList.appendChild(itemDiv);
+                itemEditor.appendChild(itemDiv);
             });
+
+            // Form to add new item
+            const addItemForm = document.createElement('div');
+            addItemForm.className = 'form-group';
+            addItemForm.innerHTML = `
+                <h3>Add New Item</h3>
+                <input type="text" id="item-name-${sectionKey}" class="input-field" placeholder="Item Name">
+                <input type="text" id="item-url-${sectionKey}" class="input-field" placeholder="Item URL (optional)">
+                <input type="text" id="item-desc-${sectionKey}" class="input-field" placeholder="Item Description (optional)">
+                <button class="add-btn" onclick="addItem('${sectionKey}')">Add Item</button>
+            `;
+            itemEditor.appendChild(addItemForm);
         }
 
         // Add a new section
@@ -220,16 +298,11 @@
                 dashboardData.sections[key] = { name, items: [] };
                 document.getElementById('newSectionKey').value = '';
                 document.getElementById('newSectionName').value = '';
+                activeSection = key;
                 renderSections();
+                renderItems(key);
             } else {
                 alert('Please provide a unique section key and name.');
-            }
-        }
-
-        // Update section name
-        function updateSectionName(key, name) {
-            if (name.trim()) {
-                dashboardData.sections[key].name = name.trim();
             }
         }
 
@@ -237,31 +310,35 @@
         function deleteSection(key) {
             if (confirm(`Are you sure you want to delete the "${dashboardData.sections[key].name}" section?`)) {
                 delete dashboardData.sections[key];
+                if (activeSection === key) {
+                    activeSection = Object.keys(dashboardData.sections)[0] || null;
+                }
                 renderSections();
+                renderItems(activeSection);
             }
         }
 
-        // Add a new item to a section
+        // Add a new item
         function addItem(sectionKey) {
-            const name = document.querySelector(`.item-name-${sectionKey}`).value.trim();
-            const url = document.querySelector(`.item-url-${sectionKey}`).value.trim();
-            const description = document.querySelector(`.item-desc-${sectionKey}`).value.trim();
+            const name = document.getElementById(`item-name-${sectionKey}`).value.trim();
+            const url = document.getElementById(`item-url-${sectionKey}`).value.trim();
+            const description = document.getElementById(`item-desc-${sectionKey}`).value.trim();
             if (name) {
                 const item = { name };
                 if (url) item.url = url;
                 if (description) item.description = description;
                 dashboardData.sections[sectionKey].items = dashboardData.sections[sectionKey].items || [];
                 dashboardData.sections[sectionKey].items.push(item);
-                document.querySelector(`.item-name-${sectionKey}`).value = '';
-                document.querySelector(`.item-url-${sectionKey}`).value = '';
-                document.querySelector(`.item-desc-${sectionKey}`).value = '';
+                document.getElementById(`item-name-${sectionKey}`).value = '';
+                document.getElementById(`item-url-${sectionKey}`).value = '';
+                document.getElementById(`item-desc-${sectionKey}`).value = '';
                 renderItems(sectionKey);
             } else {
                 alert('Item name is required.');
             }
         }
 
-        // Update an item field
+        // Update an item
         function updateItem(sectionKey, index, field, value) {
             dashboardData.sections[sectionKey].items[index][field] = value.trim();
             if (!value.trim() && field !== 'name') {
@@ -288,26 +365,6 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-        }
-
-        // Preview dashboard (opens index.html with current JSON)
-        function previewDashboard() {
-            const jsonString = JSON.stringify(dashboardData);
-            const blob = new Blob([jsonString], { type: 'application/json' });
-            const jsonUrl = URL.createObjectURL(blob);
-
-            // Create a temporary file input to simulate JSON upload
-            const dataTransfer = new DataTransfer();
-            const file = new File([blob], 'dashboard-config.json', { type: 'application/json' });
-            dataTransfer.items.add(file);
-
-            // Open index.html in a new tab and simulate file upload
-            const newWindow = window.open('index.html', '_blank');
-            newWindow.addEventListener('load', () => {
-                const fileInput = newWindow.document.getElementById('fileInput');
-                fileInput.files = dataTransfer.files;
-                fileInput.dispatchEvent(new Event('change', { bubbles: true }));
-            }, { once: true });
         }
     </script>
 </body>
