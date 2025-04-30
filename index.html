@@ -56,6 +56,9 @@
             border: 1px solid rgba(0, 255, 255, 0.1);
             text-transform: uppercase;
             letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .menu-item:hover {
@@ -84,6 +87,9 @@
             background: rgba(65, 90, 119, 0.2);
             border-radius: 5px;
             transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .link-item:hover {
@@ -124,20 +130,19 @@
             color: #778da9;
         }
 
-        .add-btn {
-            padding: 10px 20px;
+        .add-btn, .edit-btn, .add-section-btn {
+            padding: 8px 15px;
             background: linear-gradient(45deg, #00ffcc, #00b4d8);
             color: #0d1b2a;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            margin-left: 10px;
             transition: all 0.3s ease;
             text-transform: uppercase;
             font-weight: bold;
         }
 
-        .add-btn:hover {
+        .add-btn:hover, .edit-btn:hover, .add-section-btn:hover {
             box-shadow: 0 0 15px rgba(0, 255, 204, 0.7);
             transform: scale(1.05);
         }
@@ -146,31 +151,16 @@
             list-style: none;
         }
 
-        .task-list li {
-            padding: 10px;
-            margin: 5px 0;
-            background: rgba(65, 90, 119, 0.2);
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            transition: all 0.3s ease;
-        }
-
-        .task-list li:hover {
-            background: rgba(65, 90, 119, 0.4);
-        }
-
         h1 {
             color: #00ffcc;
             margin-bottom: 10px;
             text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
             letter-spacing: 2px;
-            
         }
+
         h1:hover {
             color: #90e0ef;
             text-shadow: 0 0 20px rgba(144, 224, 239, 0.7);
-
             transition: all 0.3s ease;
         }
 
@@ -194,7 +184,7 @@
             transition: all 0.3s ease;
             text-transform: uppercase;
             font-weight: bold;
-            display: none; /* Hidden by default */
+            display: none;
         }
 
         .logout-btn:hover {
@@ -226,9 +216,49 @@
             transform: scale(1.05);
         }
 
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #1b263b;
+            padding: 20px;
+            border-radius: 10px;
+            width: 400px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .modal-content input, .modal-content textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #00ffcc;
+            border-radius: 5px;
+            background: rgba(13, 27, 42, 0.8);
+            color: #e0e1dd;
+        }
+
+        .modal-content button {
+            margin: 10px 5px;
+        }
+
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
+            }
+
+            .modal-content {
+                width: 90%;
             }
         }
 
@@ -238,10 +268,7 @@
 <body>
     <div class="container">
         <div class="sidebar" id="sidebar">
-            <div class="tabs" style="display: flex; flex-direction: row; justify-content: space-around;">
-                <h1>Menu</h1>
-                <a href="./update-json.html" style="text-decoration: none;"><h1 style="opacity: 50%;">Update</h1></a>
-            </div>            
+            <h1>Menu</h1>
             <div id="menuItems"></div>
         </div>
 
@@ -258,8 +285,30 @@
         </div>
     </div>
 
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h2>Edit Item</h2>
+            <input type="text" id="editName" placeholder="Item Name" required>
+            <input type="text" id="editUrl" placeholder="URL (optional)">
+            <textarea id="editDescription" placeholder="Description (optional)"></textarea>
+            <button class="add-btn" onclick="saveEdit()">Save</button>
+            <button class="add-btn" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <div class="modal" id="addSectionModal">
+        <div class="modal-content">
+            <h2>Add New Section</h2>
+            <input type="text" id="newSectionName" placeholder="Section Name" required>
+            <button class="add-btn" onclick="addNewSection()">Add</button>
+            <button class="add-btn" onclick="closeSectionModal()">Cancel</button>
+        </div>
+    </div>
+
     <script>
-        let dashboardData = {};
+        let dashboardData = {
+            sections: {}
+        };
         const sidebar = document.getElementById('sidebar');
         const menuItemsContainer = document.getElementById('menuItems');
         const contentSectionsContainer = document.getElementById('contentSections');
@@ -267,6 +316,10 @@
         const fileInput = document.getElementById('fileInput');
         const logoutBtn = document.getElementById('logoutBtn');
         const dateDisplay = document.getElementById('currentDate');
+        const editModal = document.getElementById('editModal');
+        const addSectionModal = document.getElementById('addSectionModal');
+        let currentEditItem = null;
+        let currentSection = null;
 
         // Update date
         function updateDate() {
@@ -284,8 +337,11 @@
                 reader.onload = function(event) {
                     try {
                         dashboardData = JSON.parse(event.target.result);
+                        if (!dashboardData.sections) {
+                            dashboardData.sections = {};
+                        }
                         loadDashboard();
-                        logoutBtn.style.display = 'block'; // Show logout button after successful load
+                        logoutBtn.style.display = 'block';
                     } catch (error) {
                         alert('Invalid JSON file');
                     }
@@ -297,122 +353,201 @@
         // Load dashboard from JSON data
         function loadDashboard() {
             uploadContainer.style.display = 'none';
-            
-            // Load menu items
             menuItemsContainer.innerHTML = '';
+            contentSectionsContainer.innerHTML = '';
+
             Object.keys(dashboardData.sections).forEach((key, index) => {
                 const menuItem = document.createElement('div');
                 menuItem.className = 'menu-item';
                 menuItem.dataset.section = key;
-                menuItem.textContent = dashboardData.sections[key].name;
+                menuItem.innerHTML = `
+                    ${dashboardData.sections[key].name}
+                    <button class="add-section-btn">+</button>
+                `;
                 menuItemsContainer.appendChild(menuItem);
 
-                // Create content section
                 const section = document.createElement('div');
                 section.className = 'content-section';
                 section.id = key;
-
-                if (key === 'planner') {
-                    section.innerHTML = `
-                        <div>
-                            <input type="text" class="planner-input" placeholder="Add new task...">
-                            <button class="add-btn">Add Task</button>
-                        </div>
-                        <ul class="task-list" id="taskList"></ul>
-                    `;
-                } else {
-                    const items = dashboardData.sections[key].items || [];
-                    items.forEach(item => {
-                        const div = document.createElement('div');
-                        div.className = 'link-item';
-                        div.innerHTML = `<a href="${item.url}" target="_blank">${item.name}</a>`;
-                        if (item.description) {
-                            div.innerHTML += `<div class="description">${item.description}</div>`;
-                        }
-                        section.appendChild(div);
-                    });
-                }
+                section.innerHTML = `
+                    <div>
+                        <input type="text" class="planner-input" placeholder="Add new item..." data-section="${key}">
+                        <button class="add-btn" onclick="addItem('${key}')">Add Item</button>
+                    </div>
+                    <ul class="task-list" id="taskList_${key}"></ul>
+                `;
                 contentSectionsContainer.appendChild(section);
+                setupSection(key);
             });
+
+            // Add section button at the end of menu
+            const addSectionItem = document.createElement('div');
+            addSectionItem.className = 'menu-item';
+            addSectionItem.innerHTML = '<button class="add-section-btn" onclick="openSectionModal()">+ Add Section</button>';
+            menuItemsContainer.appendChild(addSectionItem);
 
             // Menu functionality
             const menuItems = document.querySelectorAll('.menu-item');
             const contentSections = document.querySelectorAll('.content-section');
             menuItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    menuItems.forEach(i => i.classList.remove('active'));
-                    item.classList.add('active');
-                    contentSections.forEach(section => section.classList.remove('active'));
-                    document.getElementById(item.dataset.section).classList.add('active');
-                });
+                if (!item.querySelector('.add-section-btn')) {
+                    item.addEventListener('click', () => {
+                        menuItems.forEach(i => i.classList.remove('active'));
+                        item.classList.add('active');
+                        contentSections.forEach(section => section.classList.remove('active'));
+                        document.getElementById(item.dataset.section).classList.add('active');
+                    });
+                }
             });
 
-            // Set default active section
-            menuItems[0].classList.add('active');
-            contentSections[0].classList.add('active');
-
-            // Task planner functionality
-            if (dashboardData.sections.planner) {
-                setupPlanner();
+            if (menuItems[0]) {
+                menuItems[0].classList.add('active');
+                contentSections[0].classList.add('active');
             }
         }
 
-        // Setup planner
-        function setupPlanner() {
-            const taskInput = document.querySelector('.planner-input');
-            const addBtn = document.querySelector('.add-btn');
-            const taskList = document.getElementById('taskList');
+        // Setup section as to-do list
+        function setupSection(sectionKey) {
+            const taskInput = document.querySelector(`.planner-input[data-section="${sectionKey}"]`);
+            const taskList = document.getElementById(`taskList_${sectionKey}`);
 
-            function addTask() {
+            function addItem(sectionKey) {
                 if (taskInput.value.trim()) {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        ${taskInput.value}
-                        <span style="cursor:pointer;color:#ff4444">×</span>
-                    `;
-                    taskList.appendChild(li);
+                    const item = {
+                        name: taskInput.value.trim(),
+                        url: '',
+                        description: ''
+                    };
+                    if (!dashboardData.sections[sectionKey].items) {
+                        dashboardData.sections[sectionKey].items = [];
+                    }
+                    dashboardData.sections[sectionKey].items.push(item);
+                    renderItems(sectionKey);
                     taskInput.value = '';
-                    li.querySelector('span').addEventListener('click', () => {
-                        li.remove();
-                        saveTasks();
-                    });
-                    saveTasks();
+                    saveData();
                 }
             }
 
-            addBtn.addEventListener('click', addTask);
+            window.addItem = addItem; // Make addItem globally accessible for onclick
+
             taskInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
-                    addTask();
+                    addItem(sectionKey);
                 }
             });
 
-            loadTasks();
+            renderItems(sectionKey);
         }
 
-        // Save and load tasks
-        function saveTasks() {
-            const taskList = document.getElementById('taskList');
-            const tasks = Array.from(taskList.children).map(li => li.textContent.trim().slice(0, -1));
-            dashboardData.sections.planner.items = tasks.map(task => ({ name: task }));
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-        }
-
-        function loadTasks() {
-            const taskList = document.getElementById('taskList');
-            const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-            tasks.forEach(task => {
+        // Render items for a section
+        function renderItems(sectionKey) {
+            const taskList = document.getElementById(`taskList_${sectionKey}`);
+            taskList.innerHTML = '';
+            const items = dashboardData.sections[sectionKey].items || [];
+            items.forEach((item, index) => {
                 const li = document.createElement('li');
+                li.className = 'link-item';
+                let itemHtml = item.name;
+                if (item.url) {
+                    itemHtml = `<a href="${item.url}" target="_blank">${item.name}</a>`;
+                }
                 li.innerHTML = `
-                    ${task}
-                    <span style="cursor:pointer;color:#ff4444">×</span>
+                    ${itemHtml}
+                    <div>
+                        <button class="edit-btn" onclick="openEditModal('${sectionKey}', ${index})">Edit</button>
+                        <span style="cursor:pointer;color:#ff4444;margin-left:10px;" onclick="deleteItem('${sectionKey}', ${index})">×</span>
+                    </div>
                 `;
+                if (item.description) {
+                    li.innerHTML += `<div class="description">${item.description}</div>`;
+                }
                 taskList.appendChild(li);
-                li.querySelector('span').addEventListener('click', () => {
-                    li.remove();
-                    saveTasks();
-                });
             });
+        }
+
+        // Delete item
+        function deleteItem(sectionKey, index) {
+            dashboardData.sections[sectionKey].items.splice(index, 1);
+            renderItems(sectionKey);
+            saveData();
+        }
+
+        // Edit item modal
+        function openEditModal(sectionKey, index) {
+            currentSection = sectionKey;
+            currentEditItem = index;
+            const item = dashboardData.sections[sectionKey].items[index];
+            document.getElementById('editName').value = item.name;
+            document.getElementById('editUrl').value = item.url || '';
+            document.getElementById('editDescription').value = item.description || '';
+            editModal.style.display = 'flex';
+        }
+
+        function saveEdit() {
+            const name = document.getElementById('editName').value.trim();
+            if (!name) {
+                alert('Name is required');
+                return;
+            }
+            dashboardData.sections[currentSection].items[currentEditItem] = {
+                name: name,
+                url: document.getElementById('editUrl').value.trim(),
+                description: document.getElementById('editDescription').value.trim()
+            };
+            renderItems(currentSection);
+            saveData();
+            closeModal();
+        }
+
+        function closeModal() {
+            editModal.style.display = 'none';
+            currentEditItem = null;
+            currentSection = null;
+        }
+
+        // Add new section modal
+        function openSectionModal() {
+            document.getElementById('newSectionName').value = '';
+            addSectionModal.style.display = 'flex';
+        }
+
+        function addNewSection() {
+            const sectionName = document.getElementById('newSectionName').value.trim();
+            if (!sectionName) {
+                alert('Section name is required');
+                return;
+            }
+            const sectionKey = sectionName.toLowerCase().replace(/\s+/g, '_');
+            if (dashboardData.sections[sectionKey]) {
+                alert('Section already exists');
+                return;
+            }
+            dashboardData.sections[sectionKey] = { name: sectionName, items: [] };
+            saveData();
+            loadDashboard();
+            closeSectionModal();
+        }
+
+        function closeSectionModal() {
+            addSectionModal.style.display = 'none';
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('dashboardData', JSON.stringify(dashboardData));
+        }
+
+        // Load data from localStorage
+        function loadLocalData() {
+            const savedData = localStorage.getItem('dashboardData');
+            if (savedData) {
+                dashboardData = JSON.parse(savedData);
+                if (!dashboardData.sections) {
+                    dashboardData.sections = {};
+                }
+                loadDashboard();
+                logoutBtn.style.display = 'block';
+            }
         }
 
         // Logout/Download and Reset functionality
@@ -428,13 +563,16 @@
             URL.revokeObjectURL(url);
 
             // Reset dashboard
-            dashboardData = {};
+            dashboardData = { sections: {} };
             menuItemsContainer.innerHTML = '';
             contentSectionsContainer.innerHTML = '';
             uploadContainer.style.display = 'block';
             logoutBtn.style.display = 'none';
-            localStorage.removeItem('tasks');
+            localStorage.removeItem('dashboardData');
         });
+
+        // Initialize
+        loadLocalData();
     </script>
 </body>
 </html>
