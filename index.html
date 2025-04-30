@@ -24,7 +24,7 @@
             padding: 20px;
             display: flex;
             gap: 20px;
-            min-height: 100vh;
+            height: 100vh;
         }
 
         .sidebar {
@@ -34,6 +34,8 @@
             padding: 20px;
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
             border: 1px solid rgba(0, 255, 255, 0.3);
+            overflow-y: auto;
+            scrollbar-width: none;
         }
 
         .main-content {
@@ -44,6 +46,8 @@
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
             border: 1px solid rgba(0, 255, 255, 0.3);
             position: relative;
+            overflow-y: auto;
+            scrollbar-width: none;
         }
 
         .menu-item {
