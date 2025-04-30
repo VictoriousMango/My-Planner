@@ -361,8 +361,7 @@
                 menuItem.className = 'menu-item';
                 menuItem.dataset.section = key;
                 menuItem.innerHTML = `
-                    ${dashboardData.sections[key].name}
-                    <button class="add-section-btn">+</button>
+                    <span class="menu-text">${dashboardData.sections[key].name}</span>
                 `;
                 menuItemsContainer.appendChild(menuItem);
 
@@ -390,8 +389,9 @@
             const menuItems = document.querySelectorAll('.menu-item');
             const contentSections = document.querySelectorAll('.content-section');
             menuItems.forEach(item => {
-                if (!item.querySelector('.add-section-btn')) {
-                    item.addEventListener('click', () => {
+                const menuText = item.querySelector('.menu-text');
+                if (menuText) {
+                    menuText.addEventListener('click', () => {
                         menuItems.forEach(i => i.classList.remove('active'));
                         item.classList.add('active');
                         contentSections.forEach(section => section.classList.remove('active'));
