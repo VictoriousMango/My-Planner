@@ -147,6 +147,19 @@
             transform: scale(1.05);
         }
 
+        .add-section-btn {
+            background: transparent;
+            color: #ff4444;
+            font-size: 1.2em;
+            padding: 5px;
+        }
+
+        .add-section-btn:hover {
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.7), 0 0 15px rgba(255, 68, 68, 0.7);
+            transform: scale(1.2);
+            color: #00ffcc;
+        }
+
         .task-list {
             list-style: none;
         }
@@ -171,20 +184,38 @@
             margin-bottom: 20px;
         }
 
-        .logout-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
+        .logout-btn, .upload-btn {
             padding: 8px 15px;
-            background: linear-gradient(45deg, #ff4444, #ff6666);
-            color: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
             font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .logout-btn {
+            background: linear-gradient(45deg, #ff4444, #ff6666);
+            color: #fff;
             display: none;
+        }
+
+        .logout-btn.show {
+            display: block;
+            animation: pulse 1.5s ease-in-out 1;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 20px 10px rgba(255, 68, 68, 0.3);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 68, 68, 0);
+            }
         }
 
         .logout-btn:hover {
@@ -192,28 +223,26 @@
             transform: scale(1.05);
         }
 
-        .upload-container {
-            text-align: center;
-            padding: 20px;
-        }
-
-        #fileInput {
-            display: none;
-        }
-
         .upload-btn {
-            padding: 10px 20px;
             background: linear-gradient(45deg, #00ffcc, #00b4d8);
             color: #0d1b2a;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
         }
 
         .upload-btn:hover {
             box-shadow: 0 0 15px rgba(0, 255, 204, 0.7);
             transform: scale(1.05);
+        }
+
+        .top-buttons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        #fileInput {
+            display: none;
         }
 
         .modal {
@@ -252,6 +281,68 @@
             margin: 10px 5px;
         }
 
+        .menu-header {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .menu-update {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .menu-update-arrow {
+            color: #00ffcc;
+            font-size: 1.2em;
+            margin-left: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-update:hover .menu-update-arrow {
+            transform: translateX(5px);
+        }
+
+        .menu-update:hover .menu-update-text {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .menu-update-text {
+            opacity: 0;
+            color: #00ffcc;
+            font-size: 0.9em;
+            margin-left: 5px;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: translateX(-10px);
+        }
+
+        .menu-editor-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(65, 90, 119, 0.2);
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+
+        .menu-editor-item:hover {
+            background: rgba(65, 90, 119, 0.4);
+        }
+
+        .menu-editor-item input {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+
+        .menu-editor-item span {
+            color: #ff4444;
+            cursor: pointer;
+        }
+
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
@@ -259,6 +350,11 @@
 
             .modal-content {
                 width: 90%;
+            }
+
+            .top-buttons {
+                flex-direction: column;
+                align-items: flex-end;
             }
         }
 
@@ -268,20 +364,25 @@
 <body>
     <div class="container">
         <div class="sidebar" id="sidebar">
-            <h1>Menu</h1>
+            <div class="menu-header">
+                <h1>Menu</h1>
+                <div class="menu-update" onclick="openMenuEditorModal()">
+                    <span class="menu-update-arrow">→</span>
+                    <span class="menu-update-text">Update</span>
+                </div>
+            </div>
             <div id="menuItems"></div>
         </div>
 
         <div class="main-content" id="mainContent">
             <h1>My Dashboard</h1>
             <div class="date-display" id="currentDate"></div>
-            <button class="logout-btn" id="logoutBtn">Logout</button>
-            <div id="contentSections"></div>
-            <div class="upload-container" id="uploadContainer">
-                <p>Please upload your dashboard configuration JSON file:</p>
+            <div class="top-buttons">
                 <input type="file" id="fileInput" accept=".json">
                 <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Upload JSON</button>
+                <button class="logout-btn" id="logoutBtn">Save & Logout</button>
             </div>
+            <div id="contentSections"></div>
         </div>
     </div>
 
@@ -305,19 +406,29 @@
         </div>
     </div>
 
+    <div class="modal" id="menuEditorModal">
+        <div class="modal-content">
+            <h2>Edit Menu</h2>
+            <div id="menuEditorList"></div>
+            <button class="add-btn" onclick="saveMenuChanges()">Save</button>
+            <button class="add-btn" onclick="closeMenuEditorModal()">Cancel</button>
+        </div>
+    </div>
+
     <script>
         let dashboardData = {
             sections: {}
         };
+        let isDataModified = false;
         const sidebar = document.getElementById('sidebar');
         const menuItemsContainer = document.getElementById('menuItems');
         const contentSectionsContainer = document.getElementById('contentSections');
-        const uploadContainer = document.getElementById('uploadContainer');
         const fileInput = document.getElementById('fileInput');
         const logoutBtn = document.getElementById('logoutBtn');
         const dateDisplay = document.getElementById('currentDate');
         const editModal = document.getElementById('editModal');
         const addSectionModal = document.getElementById('addSectionModal');
+        const menuEditorModal = document.getElementById('menuEditorModal');
         let currentEditItem = null;
         let currentSection = null;
 
@@ -340,8 +451,9 @@
                         if (!dashboardData.sections) {
                             dashboardData.sections = {};
                         }
+                        isDataModified = false;
                         loadDashboard();
-                        logoutBtn.style.display = 'block';
+                        logoutBtn.style.display = 'none';
                     } catch (error) {
                         alert('Invalid JSON file');
                     }
@@ -352,7 +464,6 @@
 
         // Load dashboard from JSON data
         function loadDashboard() {
-            uploadContainer.style.display = 'none';
             menuItemsContainer.innerHTML = '';
             contentSectionsContainer.innerHTML = '';
 
@@ -382,7 +493,7 @@
             // Add section button at the end of menu
             const addSectionItem = document.createElement('div');
             addSectionItem.className = 'menu-item';
-            addSectionItem.innerHTML = '<button class="add-section-btn" onclick="openSectionModal()">+ Add Section</button>';
+            addSectionItem.innerHTML = '<button class="add-section-btn" onclick="openSectionModal()">+</button>';
             menuItemsContainer.appendChild(addSectionItem);
 
             // Menu functionality
@@ -425,6 +536,7 @@
                     renderItems(sectionKey);
                     taskInput.value = '';
                     saveData();
+                    showLogoutButton();
                 }
             }
 
@@ -470,6 +582,7 @@
             dashboardData.sections[sectionKey].items.splice(index, 1);
             renderItems(sectionKey);
             saveData();
+            showLogoutButton();
         }
 
         // Edit item modal
@@ -496,6 +609,7 @@
             };
             renderItems(currentSection);
             saveData();
+            showLogoutButton();
             closeModal();
         }
 
@@ -525,6 +639,7 @@
             dashboardData.sections[sectionKey] = { name: sectionName, items: [] };
             saveData();
             loadDashboard();
+            showLogoutButton();
             closeSectionModal();
         }
 
@@ -532,9 +647,111 @@
             addSectionModal.style.display = 'none';
         }
 
+        // Menu editor modal
+        function openMenuEditorModal() {
+            const menuEditorList = document.getElementById('menuEditorList');
+            menuEditorList.innerHTML = '';
+            Object.keys(dashboardData.sections).forEach((key, index) => {
+                const div = document.createElement('div');
+                div.className = 'menu-editor-item';
+                div.draggable = true;
+                div.dataset.section = key;
+                div.innerHTML = `
+                    <input type="text" value="${dashboardData.sections[key].name}" data-section="${key}">
+                    <span onclick="deleteSection('${key}')">×</span>
+                `;
+                menuEditorList.appendChild(div);
+            });
+
+            // Setup drag-and-drop
+            const items = menuEditorList.querySelectorAll('.menu-editor-item');
+            items.forEach(item => {
+                item.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', item.dataset.section);
+                    item.classList.add('dragging');
+                });
+                item.addEventListener('dragend', () => {
+                    item.classList.remove('dragging');
+                });
+                item.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+                item.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const draggedKey = e.dataTransfer.getData('text/plain');
+                    const targetKey = item.dataset.section;
+                    if (draggedKey !== targetKey) {
+                        const newOrder = [];
+                        const keys = Object.keys(dashboardData.sections);
+                        keys.forEach(key => {
+                            if (key === draggedKey) return;
+                            if (key === targetKey) newOrder.push(draggedKey);
+                            newOrder.push(key);
+                        });
+                        const newSections = {};
+                        newOrder.forEach(key => {
+                            newSections[key] = dashboardData.sections[key];
+                        });
+                        dashboardData.sections = newSections;
+                        openMenuEditorModal();
+                        saveData();
+                        showLogoutButton();
+                    }
+                });
+            });
+
+            menuEditorModal.style.display = 'flex';
+        }
+
+        function saveMenuChanges() {
+            const items = document.querySelectorAll('#menuEditorList .menu-editor-item');
+            const newSections = {};
+            items.forEach(item => {
+                const key = item.dataset.section;
+                const newName = item.querySelector('input').value.trim();
+                if (newName) {
+                    const newKey = newName.toLowerCase().replace(/\s+/g, '_');
+                    if (newKey !== key && dashboardData.sections[newKey]) {
+                        alert(`Section name "${newName}" already exists`);
+                        return;
+                    }
+                    newSections[newKey] = { ...dashboardData.sections[key], name: newName };
+                } else {
+                    alert('Section name cannot be empty');
+                    return;
+                }
+            });
+            dashboardData.sections = newSections;
+            saveData();
+            loadDashboard();
+            showLogoutButton();
+            closeMenuEditorModal();
+        }
+
+        function deleteSection(sectionKey) {
+            delete dashboardData.sections[sectionKey];
+            saveData();
+            openMenuEditorModal();
+            showLogoutButton();
+        }
+
+        function closeMenuEditorModal() {
+            menuEditorModal.style.display = 'none';
+        }
+
         // Save data to localStorage
         function saveData() {
             localStorage.setItem('dashboardData', JSON.stringify(dashboardData));
+            isDataModified = true;
+        }
+
+        // Show logout button with animation
+        function showLogoutButton() {
+            if (isDataModified) {
+                logoutBtn.style.display = 'block';
+                logoutBtn.classList.add('show');
+                setTimeout(() => logoutBtn.classList.remove('show'), 1500);
+            }
         }
 
         // Load data from localStorage
@@ -545,8 +762,20 @@
                 if (!dashboardData.sections) {
                     dashboardData.sections = {};
                 }
+                isDataModified = true;
                 loadDashboard();
-                logoutBtn.style.display = 'block';
+                showLogoutButton();
+            } else {
+                // Initialize with default Daily Planner section
+                dashboardData = {
+                    sections: {
+                        daily_planner: {
+                            name: "Daily Planner",
+                            items: []
+                        }
+                    }
+                };
+                loadDashboard();
             }
         }
 
@@ -563,10 +792,16 @@
             URL.revokeObjectURL(url);
 
             // Reset dashboard
-            dashboardData = { sections: {} };
-            menuItemsContainer.innerHTML = '';
-            contentSectionsContainer.innerHTML = '';
-            uploadContainer.style.display = 'block';
+            dashboardData = {
+                sections: {
+                    daily_planner: {
+                        name: "Daily Planner",
+                        items: []
+                    }
+                }
+            };
+            isDataModified = false;
+            loadDashboard();
             logoutBtn.style.display = 'none';
             localStorage.removeItem('dashboardData');
         });
